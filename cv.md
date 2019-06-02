@@ -21,6 +21,25 @@ du vélo, voyager, le saumon, le minimalisme.
 💔 J'aime pas trop : courir en ville, les descentes trop techniques, les filtres
 snapchat, les foulées d'instagrameuses.
 
+### Stats
+
+{% assign distance = 0 %}
+{% assign elevation_gain = 0 %}
+{% assign elapsed_time = 0 %}
+{% for row in site.data.activities %}
+  {% assign distance = distance | plus: row['Distance (km)'] %}
+  {% assign elevation_gain = elevation_gain | plus: row['Elevation Gain (m)'] %}
+  {% assign elapsed_time = elapsed_time | date: "%s" %}
+{% endfor %}
+
+{{ distance | round }}
+{{ elevation_gain | round }}
+
+Avec mes jambes j'ai parcouru
+{{ site.data.stats.totals.distance | divided_by: 1000 | round }} km et cumulé
+{{ site.data.stats.totals.elevation_gain }} m de dénivelé positif. Le tout
+en {{ site.data.stats.totals.elapsed_time | divided_by: 3600 | round }} heures.
+
 ### Compétitions
 
 {% assign year = 2013 %}
