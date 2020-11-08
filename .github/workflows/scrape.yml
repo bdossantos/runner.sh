@@ -1,0 +1,47 @@
+name: Scrape latest data
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: "6,26,46 * * * *"
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v2
+      - name: Fetch latest data
+        env:
+          STRAVA_ACCESS_TOKEN: ${{ secrets.STRAVA_ACCESS_TOKEN }}
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+        run: |-
+          set -o errexit
+          set -o pipefail
+          set -o nounset
+
+          exit 0
+
+          export STRAVA_ACCESS_TOKEN=$(curl \
+            -XPOST \
+            -H 'content-type: application/json' \
+            -d '{"grant_type": "refresh_token","refresh_token": "${STRAVA_REFRESH_TOKEN}","client_id": "${STRAVA_CLIENT_ID}","client_secret": "${STRAVA_CLIENT_SECRET}"}' \
+            https://www.strava.com/oauth/token \
+            | jq -r '.access_token'
+          )
+
+          curl -H "Authorization: Bearer $STRAVA_ACCESS_TOKEN" https://www.strava.com/api/v3/athletes/6925704/stats
+      - name: Commit and push if it changed
+        run: |-
+          echo TODO
+          exit 0
+
+          git config user.name "Automated"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          timestamp=$(date -u)
+          git commit -m "Latest data: ${timestamp}" || exit 0
+          git push
